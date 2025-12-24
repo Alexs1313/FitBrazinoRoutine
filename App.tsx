@@ -1,28 +1,29 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import { NavigationContainer } from '@react-navigation/native';
+import Fitroutinestck from './Fitroutinesrc/Fitroutinenv/Fitroutinestck';
+import { ContextProvider } from './Fitroutinesrc/Fitroutinestrg/fitroutinecntxt';
+import Toast from 'react-native-toast-message';
+import { useEffect, useState } from 'react';
+import Fitroutineldng from './Fitroutinesrc/Fitroutinecmpnts/Fitroutineldng';
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+const App = () => {
+  const [isLdng, setIsLdng] = useState(true);
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+  useEffect(() => {
+    const ldngtmr = setTimeout(() => {
+      setIsLdng(false);
+    }, 6000);
+
+    return () => clearTimeout(ldngtmr);
+  }, []);
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <NewAppScreen templateFileName="App.tsx" />
-    </View>
+    <NavigationContainer>
+      <ContextProvider>
+        {isLdng ? <Fitroutineldng /> : <Fitroutinestck />}
+        <Toast position="top" topOffset={55} />
+      </ContextProvider>
+    </NavigationContainer>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
+};
 
 export default App;
