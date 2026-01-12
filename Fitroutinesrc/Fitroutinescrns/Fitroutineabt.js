@@ -8,6 +8,7 @@ import {
   ScrollView,
   Share,
   Animated,
+  Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -102,10 +103,17 @@ not to miss your small step. All data is stored only on your device.`,
               },
             ]}
           >
-            <Image
-              source={require('../../assets/images/loaderLogo.png')}
-              style={about.logo}
-            />
+            {Platform.OS === 'ios' ? (
+              <Image
+                source={require('../../assets/images/loaderLogo.png')}
+                style={about.logo}
+              />
+            ) : (
+              <Image
+                source={require('../../assets/images/andrFitLogo.png')}
+                style={about.logo}
+              />
+            )}
 
             <Text style={about.aboutText}>
               Fit Brazino Routine is a daily assistant for an easy rhythm of the

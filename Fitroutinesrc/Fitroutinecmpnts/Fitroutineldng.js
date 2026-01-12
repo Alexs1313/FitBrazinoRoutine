@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Image, Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
 import Fitroutinescrllbck from './Fitroutinescrllbck';
 
@@ -112,7 +112,14 @@ const Fitroutineldng = () => {
   return (
     <Fitroutinescrllbck>
       <View style={styles.imagewrapper}>
-        <Image source={require('../../assets/images/loaderLogo.png')} />
+        {Platform.OS === 'ios' ? (
+          <Image source={require('../../assets/images/loaderLogo.png')} />
+        ) : (
+          <Image
+            source={require('../../assets/images/andrFitLogo.png')}
+            style={{ width: 257, height: 257, borderRadius: 100 }}
+          />
+        )}
       </View>
 
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

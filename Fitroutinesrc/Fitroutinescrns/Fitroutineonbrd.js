@@ -3,6 +3,7 @@ import {
   Animated,
   Image,
   ImageBackground,
+  Platform,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -69,7 +70,10 @@ miss your day.
 Every day I’ll give you a new phrase and tips.`,
     },
     {
-      img: require('../../assets/images/onboard4.png'),
+      img: Platform.select({
+        ios: require('../../assets/images/onboard4.png'),
+        android: require('../../assets/images/andrFitLogo.png'),
+      }),
       title: 'Privacy Policy',
       subtitle: `Fit Brazino Routine does not collect or share your data with third parties.
 All photos, notes, and profile information are stored only on your device.
@@ -124,7 +128,12 @@ The app does not use analytics, advertising, or online services. You can delete 
                 source={onboardidx.img}
                 style={[
                   currSlideNum === 2 && { marginBottom: 60 },
-                  currSlideNum === 3 && { marginBottom: 20 },
+                  currSlideNum === 3 && {
+                    marginBottom: 20,
+                    width: 314,
+                    height: 314,
+                    borderRadius: 100,
+                  },
                 ]}
               />
             </Animated.View>

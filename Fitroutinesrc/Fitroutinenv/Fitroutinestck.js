@@ -14,7 +14,7 @@ const Stack = createStackNavigator();
 const Fitroutinestck = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Fitroutineonbr" component={Fitroutineonbr} />
+      <Stack.Screen name="Fitroutineonbrd" component={Fitroutineonbrd} />
       <Stack.Screen
         name="Fitroutineoncrtprfl"
         component={Fitroutineoncrtprfl}

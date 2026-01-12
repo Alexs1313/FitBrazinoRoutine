@@ -156,10 +156,11 @@ export const chooseclub = StyleSheet.create({
     paddingBottom: 30,
   },
   logo: {
-    width: 120,
-    height: 120,
+    width: 150,
+    height: 150,
     resizeMode: 'contain',
     marginBottom: 20,
+    borderRadius: 50,
   },
   card: {
     width: '90%',
@@ -414,6 +415,7 @@ export const task = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 14,
+    alignSelf: 'center',
   },
   clubImage: {
     width: 74,
@@ -963,6 +965,7 @@ export const about = StyleSheet.create({
     height: 160,
     resizeMode: 'contain',
     marginBottom: 20,
+    borderRadius: 42,
   },
   aboutText: {
     color: '#FFFFFF',
@@ -1052,15 +1055,14 @@ export const editprofile = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 14,
     marginTop: 12,
-    height: 50,
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   textAreaWrapper: {
     height: 90,
     paddingVertical: 10,
   },
   input: {
-    color: '#FFFFFF',
+    color: '#FFF',
     fontSize: 16,
     fontFamily: 'Rufina-Bold',
   },

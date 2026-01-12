@@ -1,5 +1,12 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, Image, Animated } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  Animated,
+  Platform,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
 import Fitroutinescrllbck from '../Fitroutinecmpnts/Fitroutinescrllbck';
@@ -68,7 +75,11 @@ const Fitroutineonchsclb = () => {
     <Fitroutinescrllbck>
       <View style={chooseclub.bg}>
         <Animated.Image
-          source={require('../../assets/images/loaderLogo.png')}
+          source={
+            Platform.OS === 'ios'
+              ? require('../../assets/images/loaderLogo.png')
+              : require('../../assets/images/andrFitLogo.png')
+          }
           style={[
             chooseclub.logo,
             {
