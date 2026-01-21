@@ -54,7 +54,7 @@ export const onboard = StyleSheet.create({
   nextgradientbutton: {
     width: 190,
     height: 61,
-    borderRadius: 32,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
     top: -30,
@@ -228,7 +228,7 @@ export const chooseclub = StyleSheet.create({
   actionBtn: {
     width: 220,
     height: 60,
-    borderRadius: 32,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -240,7 +240,7 @@ export const chooseclub = StyleSheet.create({
   homeBtn: {
     width: 200,
     height: 62,
-    borderRadius: 34,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 24,
@@ -299,7 +299,7 @@ export const home = StyleSheet.create({
   mainBtn: {
     width: 260,
     height: 61,
-    borderRadius: 32,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 7,
@@ -387,7 +387,7 @@ export const task = StyleSheet.create({
   startBtn: {
     width: 190,
     height: 61,
-    borderRadius: 32,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,
@@ -569,7 +569,7 @@ export const task = StyleSheet.create({
   homeBtn: {
     width: 190,
     height: 61,
-    borderRadius: 32,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 24,
@@ -594,7 +594,7 @@ export const savednotes = StyleSheet.create({
   shareBtn: {
     width: 124,
     height: 53,
-    borderRadius: 30,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
@@ -693,10 +693,9 @@ export const savednotes = StyleSheet.create({
     fontFamily: 'Rufina-Bold',
   },
   homeBtn: {
-    backgroundColor: '#FFE400',
     width: 190,
     height: 61,
-    borderRadius: 32,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
     marginVertical: 20,
@@ -857,7 +856,7 @@ export const settings = StyleSheet.create({
   changeBtn: {
     width: 290,
     height: 60,
-    borderRadius: 32,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
     top: -30,
@@ -886,7 +885,7 @@ export const settings = StyleSheet.create({
   },
   resetBtn: {
     height: 60,
-    borderRadius: 32,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 14,
@@ -901,7 +900,7 @@ export const settings = StyleSheet.create({
   homeBtn: {
     width: 190,
     height: 61,
-    borderRadius: 32,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 30,
@@ -977,7 +976,7 @@ export const about = StyleSheet.create({
   shareBtn: {
     width: 124,
     height: 53,
-    borderRadius: 30,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
@@ -992,7 +991,7 @@ export const about = StyleSheet.create({
   homeBtn: {
     width: 190,
     height: 61,
-    borderRadius: 32,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
@@ -1085,7 +1084,7 @@ export const editprofile = StyleSheet.create({
   changeBtn: {
     width: 130,
     height: 56,
-    borderRadius: 30,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
@@ -1104,7 +1103,7 @@ export const editprofile = StyleSheet.create({
   homeBtn: {
     width: 190,
     height: 61,
-    borderRadius: 32,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10,

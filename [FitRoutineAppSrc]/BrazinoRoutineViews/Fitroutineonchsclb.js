@@ -9,9 +9,11 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
-import Fitroutinescrllbck from '../Fitroutinecmpnts/Fitroutinescrllbck';
+import Fitroutinescrllbck from '../RoutineComponents/Fitroutinescrllbck';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { chooseclub } from '../Fitroutinecnsts/Fitroutinestls';
+import { chooseclub } from '../FitRoutineConstants/Fitroutinestls';
+
+const gradientColorsActive = ['#F5C242', '#F29E2D'];
 
 const Fitroutineonchsclb = () => {
   const [selectedClub, setSelectedClub] = useState(null);
@@ -66,9 +68,13 @@ const Fitroutineonchsclb = () => {
     }, []),
   );
 
-  const handleSelectFitClub = async selClub => {
-    await AsyncStorage.setItem('fitroutine_selected_club', selClub);
-    setSelectedClub(selClub);
+  const handleSelectFitClub = async selectedClub => {
+    try {
+      await AsyncStorage.setItem('fitroutine_selected_club', selectedClub);
+      setSelectedClub(selectedClub);
+    } catch (error) {
+      console.error('Error selecting Fit Club:', error);
+    }
   };
 
   return (
@@ -177,7 +183,7 @@ const Fitroutineonchsclb = () => {
               onPress={() => navigation.replace('Fitroutinetsks')}
             >
               <LinearGradient
-                colors={['#FFE400', '#FFBA00']}
+                colors={gradientColorsActive}
                 style={chooseclub.actionBtn}
               >
                 <Text style={chooseclub.actionText}>Go to tasks</Text>
@@ -198,7 +204,7 @@ const Fitroutineonchsclb = () => {
               onPress={() => navigation.replace('Fitroutinehm')}
             >
               <LinearGradient
-                colors={['#FFE400', '#FFBA00']}
+                colors={gradientColorsActive}
                 style={chooseclub.homeBtn}
               >
                 <Text style={chooseclub.homeText}>Home</Text>

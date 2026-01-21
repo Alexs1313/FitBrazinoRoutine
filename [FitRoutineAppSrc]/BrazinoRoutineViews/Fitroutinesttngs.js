@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
-import Fitroutinescrllbck from '../Fitroutinecmpnts/Fitroutinescrllbck';
+import Fitroutinescrllbck from '../RoutineComponents/Fitroutinescrllbck';
 import Toast from 'react-native-toast-message';
 import {
   View,
@@ -11,9 +11,11 @@ import {
   Alert,
   Animated,
 } from 'react-native';
-import { useStorage } from '../Fitroutinestrg/fitroutinecntxt';
+import { useStorage } from '../FitStorage/fitroutinecntxt';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { settings } from '../Fitroutinecnsts/Fitroutinestls';
+import { settings } from '../FitRoutineConstants/Fitroutinestls';
+
+const gradientColorsActive = ['#F5C242', '#F29E2D'];
 
 const Fitroutinesttngs = () => {
   const [profile, setProfile] = useState(null);
@@ -51,25 +53,32 @@ const Fitroutinesttngs = () => {
 
   useFocusEffect(
     useCallback(() => {
-      getPrfl();
-      chkPrgrss();
+      getProfile();
+      checkProgress();
       strtAnmt();
     }, []),
   );
 
-  const chkPrgrss = async () => {
-    const svdClb = await AsyncStorage.getItem('fitroutine_selected_club');
-    const svdNts = await AsyncStorage.getItem('fitroutine_completed_tasks');
+  const checkProgress = async () => {
+    try {
+      const savedClub = await AsyncStorage.getItem('fitroutine_selected_club');
+      const savedNotes = await AsyncStorage.getItem(
+        'fitroutine_completed_tasks',
+      );
 
-    const hsClb = !!svdClb;
-    const hsNts = svdNts && JSON.parse(svdNts).length > 0;
+      const hasClub = Boolean(savedClub);
 
-    setHasProgress(hsClb || hsNts);
+      const hasNotes = savedNotes && JSON.parse(savedNotes).length > 0;
+
+      setHasProgress(hasClub || hasNotes);
+    } catch (error) {
+      console.error('Error checking progress:', error);
+    }
   };
 
-  const toggleNtf = async selectedValue => {
+  const toggleNotification = async selectedValue => {
     Toast.show({
-      text1: !isOnNotification
+      text1: selectedValue
         ? 'Notifications turned on!'
         : 'Notifications turned off!',
     });
@@ -79,31 +88,42 @@ const Fitroutinesttngs = () => {
         'notifications',
         JSON.stringify(selectedValue),
       );
+
       setIsOnNotification(selectedValue);
     } catch (error) {
-      console.log('Error', error);
+      console.error('Error toggling notifications:', error);
     }
   };
 
-  const getPrfl = async () => {
-    const svdPrfl = await AsyncStorage.getItem('fitroutineSavedProfile');
-    if (svdPrfl) {
-      setProfile(JSON.parse(svdPrfl));
+  const getProfile = async () => {
+    try {
+      const savedProfile = await AsyncStorage.getItem('fitroutineSavedProfile');
+
+      if (savedProfile) {
+        setProfile(JSON.parse(savedProfile));
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
     }
   };
 
-  const rsPrgrss = () => {
+  const resetProgress = () => {
     Alert.alert(
       'Reset progress?',
-      'All your progress, notes and tasks will be deleted.',
+      'All your progress, notes, and tasks will be deleted.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Reset',
           style: 'destructive',
           onPress: async () => {
-            await AsyncStorage.multiRemove(['fitroutine_completed_tasks']);
-            setHasProgress(false);
+            try {
+              await AsyncStorage.multiRemove(['fitroutine_completed_tasks']);
+
+              setHasProgress(false);
+            } catch (error) {
+              console.error('Error resetting progress:', error);
+            }
           },
         },
       ],
@@ -175,7 +195,7 @@ const Fitroutinesttngs = () => {
               onPress={() => navigation.navigate('Fitroutinechgprf')}
             >
               <LinearGradient
-                colors={['#FFE400', '#FFBA00']}
+                colors={gradientColorsActive}
                 style={settings.changeBtn}
               >
                 <Text style={settings.changeText}>Change profile</Text>
@@ -197,7 +217,7 @@ const Fitroutinesttngs = () => {
 
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => toggleNtf(!isOnNotification)}
+            onPress={() => toggleNotification(!isOnNotification)}
             style={[
               settings.switchBg,
               isOnNotification && {
@@ -227,7 +247,7 @@ const Fitroutinesttngs = () => {
           }}
         >
           <TouchableOpacity
-            onPress={rsPrgrss}
+            onPress={resetProgress}
             style={{ width: '90%' }}
             disabled={!hasProgress}
             activeOpacity={0.7}
@@ -257,7 +277,7 @@ const Fitroutinesttngs = () => {
             activeOpacity={0.7}
           >
             <LinearGradient
-              colors={['#FFE400', '#FFBA00']}
+              colors={gradientColorsActive}
               style={settings.homeBtn}
             >
               <Text style={settings.homeText}>Home</Text>

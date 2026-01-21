@@ -1,13 +1,15 @@
 import { createStackNavigator } from '@react-navigation/stack';
-import Fitroutinehm from '../Fitroutinescrns/Fitroutinehm';
-import Fitroutineonbrd from '../Fitroutinescrns/Fitroutineonbrd';
-import Fitroutineoncrtprfl from '../Fitroutinescrns/Fitroutineoncrtprfl';
-import Fitroutineonchsclb from '../Fitroutinescrns/Fitroutineonchsclb';
-import Fitroutinetsks from '../Fitroutinescrns/Fitroutinetsks';
-import Fitroutinesvdnts from '../Fitroutinescrns/Fitroutinesvdnts';
-import Fitroutineabt from '../Fitroutinescrns/Fitroutineabt';
-import Fitroutinesttngs from '../Fitroutinescrns/Fitroutinesttngs';
-import Fitroutinechgprf from '../Fitroutinescrns/Fitroutinechgprf';
+
+//screens =>
+import Fitroutinehm from '../BrazinoRoutineViews/Fitroutinehm';
+import Fitroutineonbrd from '../BrazinoRoutineViews/Fitroutineonbrd';
+import Fitroutineoncrtprfl from '../BrazinoRoutineViews/Fitroutineoncrtprfl';
+import Fitroutineonchsclb from '../BrazinoRoutineViews/Fitroutineonchsclb';
+import Fitroutinetsks from '../BrazinoRoutineViews/Fitroutinetsks';
+import Fitroutinesvdnts from '../BrazinoRoutineViews/Fitroutinesvdnts';
+import Fitroutineabt from '../BrazinoRoutineViews/Fitroutineabt';
+import Fitroutinesttngs from '../BrazinoRoutineViews/Fitroutinesttngs';
+import Fitroutinechgprf from '../BrazinoRoutineViews/Fitroutinechgprf';
 
 const Stack = createStackNavigator();
 

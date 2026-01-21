@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
-import { savednotes } from '../Fitroutinecnsts/Fitroutinestls';
+import { savednotes } from '../FitRoutineConstants/Fitroutinestls';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { BlurView } from '@react-native-community/blur';
 import {
@@ -16,8 +16,10 @@ import {
   Platform,
   Animated,
 } from 'react-native';
-import { useStorage } from '../Fitroutinestrg/fitroutinecntxt';
+import { useStorage } from '../FitStorage/fitroutinecntxt';
 import Toast from 'react-native-toast-message';
+
+const gradientColorsActive = ['#F5C242', '#F29E2D'];
 
 const Fitroutinesvdnts = () => {
   const [notes, setNotes] = useState([]);
@@ -56,45 +58,63 @@ const Fitroutinesvdnts = () => {
   useFocusEffect(
     useCallback(() => {
       strtAnmt();
-      getSvdNts();
+      getSavedNotes();
     }, []),
   );
 
-  const getSvdNts = async () => {
-    const svdNts = await AsyncStorage.getItem('fitroutine_completed_tasks');
-    const prsdNts = svdNts ? JSON.parse(svdNts) : [];
-    setNotes(prsdNts);
+  const getSavedNotes = async () => {
+    try {
+      const savedNotes = await AsyncStorage.getItem(
+        'fitroutine_completed_tasks',
+      );
+
+      const parsedNotes = savedNotes ? JSON.parse(savedNotes) : [];
+
+      setNotes(parsedNotes);
+    } catch (error) {
+      console.error('Error fetching saved notes:', error);
+    }
   };
 
   const cnfrmDlt = selIdx => {
     setDeleteIndex(selIdx);
   };
 
-  const dltNt = async () => {
-    const updNt = notes.filter((_, idx) => idx !== deleteIndex);
-    setNotes(updNt);
-    setDeleteIndex(null);
+  const deleteNote = async () => {
+    try {
+      const updatedNotes = notes.filter((_, idx) => idx !== deleteIndex);
 
-    if (isOnNotification) {
-      Toast.show({ text1: 'Your note has been successfully deleted!' });
+      setNotes(updatedNotes);
+      setDeleteIndex(null);
+
+      if (isOnNotification) {
+        Toast.show({ text1: 'Your note has been successfully deleted!' });
+      }
+
+      await AsyncStorage.setItem(
+        'fitroutine_completed_tasks',
+        JSON.stringify(updatedNotes),
+      );
+    } catch (error) {
+      console.error('Error deleting the note:', error);
     }
-
-    await AsyncStorage.setItem(
-      'fitroutine_completed_tasks',
-      JSON.stringify(updNt),
-    );
   };
 
-  const handleShrtsk = item => {
-    Share.share({
-      message: `Here's my note: ${item.feeling} on ${item.date}`,
-    });
+  const handleShareTask = item => {
+    try {
+      Share.share({
+        message: `Here's my note: ${item.feeling} on ${item.date}`,
+      });
+    } catch (error) {
+      console.error('Error sharing task:', error);
+    }
   };
 
   return (
     <ImageBackground
       source={require('../../assets/images/backgroundImage.png')}
       style={{ flex: 1 }}
+      blurRadius={1.5}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -168,7 +188,7 @@ const Fitroutinesvdnts = () => {
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    onPress={() => handleShrtsk(item)}
+                    onPress={() => handleShareTask(item)}
                     activeOpacity={0.7}
                   >
                     <LinearGradient
@@ -216,7 +236,7 @@ const Fitroutinesvdnts = () => {
                   </View>
                 </View>
                 <View style={[savednotes.row, { width: '70%' }]}>
-                  <TouchableOpacity onPress={dltNt} activeOpacity={0.7}>
+                  <TouchableOpacity onPress={deleteNote} activeOpacity={0.7}>
                     <LinearGradient
                       colors={['#E50000', '#360000']}
                       style={savednotes.shareBtn}
@@ -259,7 +279,7 @@ const Fitroutinesvdnts = () => {
           activeOpacity={0.7}
         >
           <LinearGradient
-            colors={['#FFE400', '#FFBA00']}
+            colors={gradientColorsActive}
             style={savednotes.homeBtn}
           >
             <Text style={savednotes.homeText}>Home</Text>

@@ -5,6 +5,7 @@ const Fitroutinescrllbck = ({ children }) => {
     <ImageBackground
       source={require('../../assets/images/backgroundImage.png')}
       style={styles.fitroutinebackground}
+      blurRadius={1.5}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}

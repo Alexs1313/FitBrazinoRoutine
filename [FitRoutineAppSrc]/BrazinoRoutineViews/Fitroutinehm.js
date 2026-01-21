@@ -1,15 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Fitroutinescrllbck from '../Fitroutinecmpnts/Fitroutinescrllbck';
+import Fitroutinescrllbck from '../RoutineComponents/Fitroutinescrllbck';
 import LinearGradient from 'react-native-linear-gradient';
-import { home } from '../Fitroutinecnsts/Fitroutinestls';
+import { home } from '../FitRoutineConstants/Fitroutinestls';
 import { useFocusEffect } from '@react-navigation/native';
-import { useStorage } from '../Fitroutinestrg/fitroutinecntxt';
+import { useStorage } from '../FitStorage/fitroutinecntxt';
 
 const fitrtnoneday = 24 * 60 * 60 * 1000;
 const fitrtnmotivationkey = 'fitroutine_daily_motivation';
 const fitrtnmotivationtimekey = 'fitroutine_daily_motivation_time';
+const gradientColorsActive = ['#F5C242', '#F29E2D'];
 
 const Fitroutinehm = ({ navigation }) => {
   const [fitRtnPrfl, setFitRtnPrfl] = useState(null);
@@ -47,8 +48,8 @@ const Fitroutinehm = ({ navigation }) => {
   };
 
   useEffect(() => {
-    getFitrtnprfl();
-    getFitDailyMtvtnPhrase();
+    getFitRoutineProfile();
+    getFitDailyMotivationPhrase();
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -57,20 +58,35 @@ const Fitroutinehm = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
-      getFitrtnprfl();
-      getSttngs();
+      getFitRoutineProfile();
+      getSettings();
       strtAnmtn();
     }, []),
   );
 
-  const getSttngs = async () => {
-    const ntfSvdVl = await AsyncStorage.getItem('notifications');
-    if (ntfSvdVl !== null) setIsOnNotification(JSON.parse(ntfSvdVl));
-  };
+  const getSettings = async () => {
+    try {
+      const savedNotificationValue = await AsyncStorage.getItem(
+        'notifications',
+      );
 
-  const getFitrtnprfl = async () => {
-    const svfPrf = await AsyncStorage.getItem('fitroutineSavedProfile');
-    if (svfPrf) setFitRtnPrfl(JSON.parse(svfPrf));
+      if (savedNotificationValue !== null) {
+        setIsOnNotification(JSON.parse(savedNotificationValue));
+      }
+    } catch (error) {
+      console.error('Error retrieving settings:', error);
+    }
+  };
+  const getFitRoutineProfile = async () => {
+    try {
+      const savedProfile = await AsyncStorage.getItem('fitroutineSavedProfile');
+
+      if (savedProfile) {
+        setFitRtnPrfl(JSON.parse(savedProfile));
+      }
+    } catch (error) {
+      console.error('Error retrieving the Fit Routine profile:', error);
+    }
   };
 
   const phrss = [
@@ -106,37 +122,44 @@ const Fitroutinehm = ({ navigation }) => {
     'I’m with you. Let’s go.',
   ];
 
-  const getFitDailyMtvtnPhrase = async () => {
-    const svdPhrs = await AsyncStorage.getItem(fitrtnmotivationkey);
-    const svdTime = await AsyncStorage.getItem(fitrtnmotivationtimekey);
-    const dtnw = Date.now();
+  const getFitDailyMotivationPhrase = async () => {
+    try {
+      const savedPhrase = await AsyncStorage.getItem(fitrtnmotivationkey);
+      const savedTime = await AsyncStorage.getItem(fitrtnmotivationtimekey);
+      const now = Date.now();
 
-    if (svdPhrs && svdTime && dtnw - Number(svdTime) < fitrtnoneday) {
-      setDailyMotivation(svdPhrs);
-      updFitrtntmr(Number(svdTime));
-      return;
-    }
-
-    const newPhrase = phrss[Math.floor(Math.random() * phrss.length)];
-
-    await AsyncStorage.setItem(fitrtnmotivationkey, newPhrase);
-    await AsyncStorage.setItem(fitrtnmotivationtimekey, dtnw.toString());
-
-    setDailyMotivation(newPhrase);
-    updFitrtntmr(dtnw);
-  };
-
-  const updFitrtntmr = start => {
-    const tick = () => {
-      const fitDff = fitrtnoneday - (Date.now() - start);
-      if (fitDff <= 0) {
-        getFitDailyMtvtnPhrase();
+      if (savedPhrase && savedTime && now - Number(savedTime) < fitrtnoneday) {
+        setDailyMotivation(savedPhrase);
+        updateFitRoutineTimer(Number(savedTime));
         return;
       }
-      setFitRtnTmLft(`${Math.floor(fitDff / (1000 * 60 * 60))}h`);
+
+      const newPhrase = phrss[Math.floor(Math.random() * phrss.length)];
+
+      await AsyncStorage.setItem(fitrtnmotivationkey, newPhrase);
+      await AsyncStorage.setItem(fitrtnmotivationtimekey, now.toString());
+
+      setDailyMotivation(newPhrase);
+      updateFitRoutineTimer(now);
+    } catch (error) {
+      console.error('Error fetching daily motivation phrase:', error);
+    }
+  };
+
+  const updateFitRoutineTimer = start => {
+    const tick = () => {
+      const timeDiff = fitrtnoneday - (Date.now() - start);
+
+      if (timeDiff <= 0) {
+        getFitDailyMotivationPhrase();
+        return;
+      }
+
+      setFitRtnTmLft(`${Math.floor(timeDiff / (1000 * 60 * 60))}h`);
     };
 
     tick();
+
     timerRef.current = setInterval(tick, 60000);
   };
 
@@ -186,7 +209,7 @@ const Fitroutinehm = ({ navigation }) => {
               onPress={() => navigation.navigate(btn.screen)}
             >
               <LinearGradient
-                colors={['#FFE400', '#FFBA00']}
+                colors={gradientColorsActive}
                 style={home.mainBtn}
               >
                 <Text style={home.mainBtnText}>{btn.title}</Text>

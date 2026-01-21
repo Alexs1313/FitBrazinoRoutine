@@ -12,11 +12,13 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
 import { launchImageLibrary } from 'react-native-image-picker';
-import Fitroutinescrllbck from '../Fitroutinecmpnts/Fitroutinescrllbck';
-import { useStorage } from '../Fitroutinestrg/fitroutinecntxt';
+import Fitroutinescrllbck from '../RoutineComponents/Fitroutinescrllbck';
+import { useStorage } from '../FitStorage/fitroutinecntxt';
 import Toast from 'react-native-toast-message';
-import { task } from '../Fitroutinecnsts/Fitroutinestls';
+import { task } from '../FitRoutineConstants/Fitroutinestls';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+
+const gradientColorsActive = ['#F5C242', '#F29E2D'];
 
 const Fitroutinetsks = () => {
   const [club, setClub] = useState(null);
@@ -102,71 +104,83 @@ const Fitroutinetsks = () => {
   };
 
   useEffect(() => {
-    getFitClbTsks();
+    getFitClubTasks();
   }, []);
 
-  const getFitClbTsks = async () => {
-    const svdClb = await AsyncStorage.getItem('fitroutine_selected_club');
-    if (!svdClb) return;
+  const getFitClubTasks = async () => {
+    const savedClub = await AsyncStorage.getItem('fitroutine_selected_club');
+    if (!savedClub) return;
 
-    const clbTsks = fitRtnClbTsks[svdClb] || [];
+    const clubTasks = fitRtnClbTsks[savedClub] || [];
 
-    const svdRs = await AsyncStorage.getItem('fitroutine_completed_tasks');
-    const prsd = svdRs ? JSON.parse(svdRs) : [];
+    const savedResults = await AsyncStorage.getItem(
+      'fitroutine_completed_tasks',
+    );
+    const parsedResults = savedResults ? JSON.parse(savedResults) : [];
 
-    const fitTd = fitFormDt(Date.now());
-    const tdRs = prsd.find(res => res.club === svdClb && res.date === fitTd);
+    const formattedDate = formatFitDate(Date.now());
+    const todayResults = parsedResults.find(
+      res => res.club === savedClub && res.date === formattedDate,
+    );
 
-    setClub(svdClb);
-    setTasks(clbTsks);
+    setClub(savedClub);
+    setTasks(clubTasks);
 
-    if (tdRs?.completedTasks) {
-      setFitChckd(buildCheckedFromCompleted(clbTsks, tdRs.completedTasks));
+    if (todayResults?.completedTasks) {
+      setFitChckd(
+        buildCheckedFromCompleted(clubTasks, todayResults.completedTasks),
+      );
       setFitStp('tasks');
     } else {
-      setFitChckd(Array(clbTsks.length).fill(false));
+      setFitChckd(Array(clubTasks.length).fill(false));
     }
   };
 
-  const tgglTsk = async fitIdx => {
-    const fitCp = [...fitChckd];
-    fitCp[fitIdx] = !fitCp[fitIdx];
-    setFitChckd(fitCp);
+  const toggleTask = async taskIndex => {
+    try {
+      const updatedCheckedTasks = [...fitChckd];
+      updatedCheckedTasks[taskIndex] = !updatedCheckedTasks[taskIndex];
+      setFitChckd(updatedCheckedTasks);
 
-    const cmpltTsks = tasks.filter((_, i) => fitCp[i]);
-    const fitTd = fitFormDt(Date.now());
+      const completedTasks = tasks.filter((_, i) => updatedCheckedTasks[i]);
+      const formattedDate = formatFitDate(Date.now());
 
-    const svdCmplTsks = await AsyncStorage.getItem(
-      'fitroutine_completed_tasks',
-    );
-    const prsd = svdCmplTsks ? JSON.parse(svdCmplTsks) : [];
+      const savedCompletedTasks = await AsyncStorage.getItem(
+        'fitroutine_completed_tasks',
+      );
+      const parsedTasks = savedCompletedTasks
+        ? JSON.parse(savedCompletedTasks)
+        : [];
 
-    const exsIdx = prsd.findIndex(
-      idx => idx.club === club && idx.date === fitTd,
-    );
+      const existingIndex = parsedTasks.findIndex(
+        item => item.club === club && item.date === formattedDate,
+      );
 
-    if (exsIdx !== -1) {
-      prsd[exsIdx].completedTasks = cmpltTsks;
-    } else {
-      prsd.unshift({
-        club,
-        completedTasks: cmpltTsks,
-        date: fitTd,
-        timestamp: Date.now(),
-      });
+      if (existingIndex !== -1) {
+        parsedTasks[existingIndex].completedTasks = completedTasks;
+      } else {
+        parsedTasks.unshift({
+          club,
+          completedTasks,
+          date: formattedDate,
+          timestamp: Date.now(),
+        });
+      }
+
+      await AsyncStorage.setItem(
+        'fitroutine_completed_tasks',
+        JSON.stringify(parsedTasks),
+      );
+    } catch (error) {
+      console.error('Error toggling task:', error);
     }
-
-    await AsyncStorage.setItem(
-      'fitroutine_completed_tasks',
-      JSON.stringify(prsd),
-    );
   };
 
-  const fitFormDt = date => {
-    const dtnw = new Date(date);
-    return `${String(dtnw.getDate()).padStart(2, '0')}/${String(
-      dtnw.getMonth() + 1,
-    ).padStart(2, '0')}/${dtnw.getFullYear()}`;
+  const formatFitDate = date => {
+    const currentDate = new Date(date);
+    return `${String(currentDate.getDate()).padStart(2, '0')}/${String(
+      currentDate.getMonth() + 1,
+    ).padStart(2, '0')}/${currentDate.getFullYear()}`;
   };
 
   const buildCheckedFromCompleted = (selTasks, completedTasks) =>
@@ -174,59 +188,87 @@ const Fitroutinetsks = () => {
 
   const getCompletedTasks = () => tasks.filter((_, index) => fitChckd[index]);
 
-  const addFitrslts = async () => {
-    const cmpltTsks = getCompletedTasks();
-    const fitTd = fitFormDt(Date.now());
+  const addFitResults = async () => {
+    try {
+      const completedTasks = getCompletedTasks();
+      const fitToday = formatFitDate(Date.now());
 
-    if (isOnNotification) {
-      Toast.show({ text1: 'Your results have been successfully saved!' });
-    }
-
-    const svd = await AsyncStorage.getItem('fitroutine_completed_tasks');
-    const prsd = svd ? JSON.parse(svd) : [];
-
-    const exsIdx = prsd.findIndex(
-      item => item.club === club && item.date === fitTd,
-    );
-
-    if (exsIdx !== -1) {
-      prsd[exsIdx] = {
-        ...prsd[exsIdx],
-        feeling,
-        photo,
-        timestamp: Date.now(),
-      };
-    } else {
-      prsd.unshift({
-        club,
-        completedTasks: cmpltTsks,
-        feeling,
-        photo,
-        date: fitTd,
-        timestamp: Date.now(),
-      });
-    }
-
-    await AsyncStorage.setItem(
-      'fitroutine_completed_tasks',
-      JSON.stringify(prsd),
-    );
-
-    navigation.replace('Fitroutinehm');
-  };
-
-  const getFitpht = () => {
-    launchImageLibrary({ mediaType: 'photo', quality: 0.9 }, selImg => {
-      if (!selImg.didCancel && selImg.assets?.length) {
-        setPhoto(selImg.assets[0].uri);
+      if (isOnNotification) {
+        Toast.show({ text1: 'Your results have been successfully saved!' });
       }
-    });
+
+      const savedResults = await AsyncStorage.getItem(
+        'fitroutine_completed_tasks',
+      );
+      const parsedResults = savedResults ? JSON.parse(savedResults) : [];
+
+      const existingIndex = parsedResults.findIndex(
+        item => item.club === club && item.date === fitToday,
+      );
+
+      if (existingIndex !== -1) {
+        parsedResults[existingIndex] = {
+          ...parsedResults[existingIndex],
+          feeling,
+          photo,
+          timestamp: Date.now(),
+        };
+      } else {
+        parsedResults.unshift({
+          club,
+          completedTasks,
+          feeling,
+          photo,
+          date: fitToday,
+          timestamp: Date.now(),
+        });
+      }
+
+      await AsyncStorage.setItem(
+        'fitroutine_completed_tasks',
+        JSON.stringify(parsedResults),
+      );
+
+      navigation.replace('Fitroutinehm');
+    } catch (error) {
+      console.error('Error saving Fit results:', error);
+    }
   };
 
-  const handleShrtsk = () => {
-    Share.share({
-      message: `I just completed all my tasks in the ${fitRtnClbCfg[club].title}!`,
-    });
+  const getFitPhoto = () => {
+    try {
+      launchImageLibrary(
+        { mediaType: 'photo', quality: 0.9 },
+        selectedImage => {
+          if (!selectedImage.didCancel && selectedImage.assets?.length > 0) {
+            setPhoto(selectedImage.assets[0].uri);
+          } else if (selectedImage.didCancel) {
+            console.log('Image selection was canceled by the user.');
+          } else {
+            console.log('No valid image was selected.');
+          }
+        },
+      );
+    } catch (error) {
+      console.error('Error opening image library:', error);
+    }
+  };
+
+  const handleShareTask = () => {
+    try {
+      const clubTitle = fitRtnClbCfg[club]?.title;
+
+      if (!clubTitle) {
+        console.error('Club title is missing or invalid.');
+        return;
+      }
+
+      Share.share({
+        message: `I just completed all my tasks in the ${clubTitle}!`,
+      });
+    } catch (error) {
+      console.error('Error sharing task:', error);
+    }
   };
 
   const fitTsksDn = fitChckd.length > 0 && fitChckd.every(Boolean);
@@ -260,7 +302,7 @@ const Fitroutinetsks = () => {
 
             <TouchableOpacity onPress={() => setFitStp('tasks')}>
               <LinearGradient
-                colors={['#FFE400', '#FFBA00']}
+                colors={gradientColorsActive}
                 style={task.startBtn}
               >
                 <Text style={task.startText}>Start</Text>
@@ -287,7 +329,7 @@ const Fitroutinetsks = () => {
                   <TouchableOpacity
                     key={i}
                     style={task.taskRow}
-                    onPress={() => tgglTsk(i)}
+                    onPress={() => toggleTask(i)}
                   >
                     <View style={[task.checkbox, fitChckd[i] && task.checked]}>
                       {fitChckd[i] && (
@@ -339,7 +381,7 @@ const Fitroutinetsks = () => {
               />
             </View>
 
-            <TouchableOpacity style={task.photoBox} onPress={getFitpht}>
+            <TouchableOpacity style={task.photoBox} onPress={getFitPhoto}>
               {photo ? (
                 <Image source={{ uri: photo }} style={task.photo} />
               ) : (
@@ -352,7 +394,7 @@ const Fitroutinetsks = () => {
 
             {photo && feeling && (
               <View style={task.row}>
-                <TouchableOpacity onPress={addFitrslts}>
+                <TouchableOpacity onPress={addFitResults}>
                   <LinearGradient
                     colors={['#00E500', '#002C00']}
                     style={task.shareBtn}
@@ -361,7 +403,7 @@ const Fitroutinetsks = () => {
                   </LinearGradient>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={handleShrtsk}>
+                <TouchableOpacity onPress={handleShareTask}>
                   <LinearGradient
                     colors={['#D200E5', '#2E0032']}
                     style={task.shareBtn}
@@ -376,10 +418,7 @@ const Fitroutinetsks = () => {
 
         <Animated.View style={{ opacity: fade }}>
           <TouchableOpacity onPress={() => navigation.navigate('Fitroutinehm')}>
-            <LinearGradient
-              colors={['#FFE400', '#FFBA00']}
-              style={task.homeBtn}
-            >
+            <LinearGradient colors={gradientColorsActive} style={task.homeBtn}>
               <Text style={task.homeText}>Home</Text>
             </LinearGradient>
           </TouchableOpacity>

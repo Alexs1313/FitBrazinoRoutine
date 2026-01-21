@@ -10,9 +10,11 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
 import { launchImageLibrary } from 'react-native-image-picker';
-import Fitroutinescrllbck from '../Fitroutinecmpnts/Fitroutinescrllbck';
-import { editprofile, settings } from '../Fitroutinecnsts/Fitroutinestls';
+import Fitroutinescrllbck from '../RoutineComponents/Fitroutinescrllbck';
+import { editprofile, settings } from '../FitRoutineConstants/Fitroutinestls';
 import { useFocusEffect } from '@react-navigation/native';
+
+const gradientColorsActive = ['#F5C242', '#F29E2D'];
 
 const Fitroutinechgprf = ({ navigation }) => {
   const [name, setName] = useState('');
@@ -50,50 +52,71 @@ const Fitroutinechgprf = ({ navigation }) => {
   useFocusEffect(
     useCallback(() => {
       strtAnmt();
-      getPrfl();
+      getProfile();
     }, []),
   );
 
-  const getPrfl = async () => {
-    const svdPrfl = await AsyncStorage.getItem('fitroutineSavedProfile');
-    if (svdPrfl) {
-      const svdPrflDt = JSON.parse(svdPrfl);
-      setName(svdPrflDt.fitRoutineUserName || '');
-      setMotivation(svdPrflDt.fitRoutineMotivation || '');
-      setPhoto(svdPrflDt.fitRoutinePhoto || null);
+  const getProfile = async () => {
+    try {
+      const savedProfile = await AsyncStorage.getItem('fitroutineSavedProfile');
+
+      if (savedProfile) {
+        //parse
+        const profileData = JSON.parse(savedProfile);
+
+        setName(profileData.fitRoutineUserName || '');
+        setMotivation(profileData.fitRoutineMotivation || '');
+        setPhoto(profileData.fitRoutinePhoto || null);
+      }
+    } catch (error) {
+      console.error('Error retrieving profile:', error);
     }
   };
 
-  const hndlPckPht = () => {
-    launchImageLibrary({ mediaType: 'photo', quality: 0.9 }, image => {
-      if (!image.didCancel && image.assets?.length) {
-        setPhoto(image.assets[0].uri);
+  const handlePickPhoto = () => {
+    launchImageLibrary({ mediaType: 'photo', quality: 0.9 }, response => {
+      if (response && !response.didCancel && response.assets?.length > 0) {
+        setPhoto(response.assets[0].uri);
+      } else if (response.didCancel) {
+        console.log('User canceled the photo picker.');
+      } else {
+        console.log('No photo was selected.');
       }
     });
   };
 
-  const addPrfl = async () => {
-    const updatedProfile = {
-      fitRoutineUserName: name,
-      fitRoutineMotivation: motivation,
-      fitRoutinePhoto: photo,
-      updatedAt: Date.now(),
-    };
+  const addProfile = async () => {
+    try {
+      const updatedProfile = {
+        fitRoutineUserName: name,
+        fitRoutineMotivation: motivation,
+        fitRoutinePhoto: photo,
+        updatedAt: Date.now(),
+      };
 
-    await AsyncStorage.setItem(
-      'fitroutineSavedProfile',
-      JSON.stringify(updatedProfile),
-    );
+      await AsyncStorage.setItem(
+        'fitroutineSavedProfile',
+        JSON.stringify(updatedProfile),
+      );
 
-    navigation.goBack();
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error saving profile:', error);
+    }
   };
 
-  const dltPrfl = async () => {
-    await AsyncStorage.removeItem('fitroutineSavedProfile');
-    setName('');
-    setMotivation('');
-    setPhoto(null);
-    navigation.navigate('Fitroutineonbrd');
+  const deleteProfile = async () => {
+    try {
+      await AsyncStorage.removeItem('fitroutineSavedProfile');
+
+      setName('');
+      setMotivation('');
+      setPhoto(null);
+
+      navigation.navigate('Fitroutineonbrd');
+    } catch (error) {
+      console.error('Error deleting profile:', error);
+    }
   };
 
   return (
@@ -110,7 +133,10 @@ const Fitroutinechgprf = ({ navigation }) => {
         >
           <Text style={editprofile.title}>Your profile</Text>
 
-          <TouchableOpacity style={editprofile.photoBox} onPress={hndlPckPht}>
+          <TouchableOpacity
+            style={editprofile.photoBox}
+            onPress={handlePickPhoto}
+          >
             {photo && (
               <Image source={{ uri: photo }} style={editprofile.photo} />
             )}
@@ -163,9 +189,9 @@ const Fitroutinechgprf = ({ navigation }) => {
             </LinearGradient>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={addPrfl}>
+          <TouchableOpacity onPress={addProfile}>
             <LinearGradient
-              colors={['#FFE400', '#FFBA00']}
+              colors={gradientColorsActive}
               style={editprofile.changeBtn}
             >
               <Text style={[editprofile.changeText, { color: '#002000' }]}>
@@ -184,7 +210,7 @@ const Fitroutinechgprf = ({ navigation }) => {
           }}
         >
           <TouchableOpacity
-            onPress={dltPrfl}
+            onPress={deleteProfile}
             style={{ width: '90%' }}
             activeOpacity={0.7}
           >
@@ -205,7 +231,7 @@ const Fitroutinechgprf = ({ navigation }) => {
         >
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <LinearGradient
-              colors={['#FFE400', '#FFBA00']}
+              colors={gradientColorsActive}
               style={editprofile.homeBtn}
             >
               <Text style={editprofile.homeText}>Home</Text>

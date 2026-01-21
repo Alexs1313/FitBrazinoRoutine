@@ -10,9 +10,9 @@ import {
 import { launchImageLibrary } from 'react-native-image-picker';
 import LinearGradient from 'react-native-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Fitroutinescrllbck from '../Fitroutinecmpnts/Fitroutinescrllbck';
+import Fitroutinescrllbck from '../RoutineComponents/Fitroutinescrllbck';
 import { useNavigation } from '@react-navigation/native';
-import { profile } from '../Fitroutinecnsts/Fitroutinestls';
+import { profile } from '../FitRoutineConstants/Fitroutinestls';
 
 const Fitroutineoncrtprfl = () => {
   const [fitRoutineSlide, setFitRoutineSlide] = useState(1);
@@ -59,35 +59,51 @@ const Fitroutineoncrtprfl = () => {
   }, [fitRoutineSlide]);
 
   const fetchFitRoutineSavedProfileData = async () => {
-    const svdUsrPrfl = await AsyncStorage.getItem('fitroutineSavedProfile');
-    if (svdUsrPrfl) {
-      const saved = JSON.parse(svdUsrPrfl);
-      setFitRoutineUserName(saved.fitRoutineUserName || '');
-      setFitRoutineMotivation(saved.fitRoutineMotivation || '');
-      setFitRoutinePhoto(saved.fitRoutinePhoto || null);
+    try {
+      const savedUserProfile = await AsyncStorage.getItem(
+        'fitroutineSavedProfile',
+      );
+
+      if (savedUserProfile) {
+        const profileParsed = JSON.parse(savedUserProfile);
+
+        setFitRoutineUserName(profileParsed.fitRoutineUserName || '');
+        setFitRoutineMotivation(profileParsed.fitRoutineMotivation || '');
+        setFitRoutinePhoto(profileParsed.fitRoutinePhoto || null);
+      }
+    } catch (error) {
+      console.error('Error fetching Fit Routine saved profile data:', error);
     }
   };
 
-  const handlePickImg = () => {
-    launchImageLibrary({ mediaType: 'photo', quality: 0.9 }, result => {
-      if (!result.didCancel && result.assets?.length) {
-        setFitRoutinePhoto(result.assets[0].uri);
+  const handlePickImage = () => {
+    launchImageLibrary({ mediaType: 'photo', quality: 0.9 }, response => {
+      if (response && !response.didCancel && response.assets?.length > 0) {
+        setFitRoutinePhoto(response.assets[0].uri);
+      } else if (response.didCancel) {
+        console.log('User canceled the image picker.');
+      } else {
+        console.log('No image was selected.');
       }
     });
   };
 
   const addUserProfile = async () => {
-    const newProfileData = {
-      fitRoutineUserName,
-      fitRoutineMotivation,
-      fitRoutinePhoto,
-      createdAt: Date.now(),
-    };
+    try {
+      const newProfileData = {
+        fitRoutineUserName,
+        fitRoutineMotivation,
+        fitRoutinePhoto,
+        createdAt: Date.now(),
+      };
 
-    await AsyncStorage.setItem(
-      'fitroutineSavedProfile',
-      JSON.stringify(newProfileData),
-    );
+      await AsyncStorage.setItem(
+        'fitroutineSavedProfile',
+        JSON.stringify(newProfileData),
+      );
+    } catch (error) {
+      console.error('Error saving user profile:', error);
+    }
   };
 
   const infoIsCompleted =
@@ -158,7 +174,7 @@ const Fitroutineoncrtprfl = () => {
             <FitRoutinTouchable
               activeOpacity={0.8}
               style={profile.photoBox}
-              onPress={handlePickImg}
+              onPress={handlePickImage}
             >
               {fitRoutinePhoto ? (
                 <View>

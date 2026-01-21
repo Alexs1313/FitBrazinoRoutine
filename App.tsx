@@ -1,25 +1,25 @@
 import { NavigationContainer } from '@react-navigation/native';
-import Fitroutinestck from './Fitroutinesrc/Fitroutinenv/Fitroutinestck';
-import { ContextProvider } from './Fitroutinesrc/Fitroutinestrg/fitroutinecntxt';
+import Fitroutinestck from './[FitRoutineAppSrc]/RoutineAppRouter/Fitroutinestck';
+import { ContextProvider } from './[FitRoutineAppSrc]/FitStorage/fitroutinecntxt';
 import Toast from 'react-native-toast-message';
 import { useEffect, useState } from 'react';
-import Fitroutineldng from './Fitroutinesrc/Fitroutinecmpnts/Fitroutineldng';
+import Fitroutineldng from './[FitRoutineAppSrc]/RoutineComponents/Fitroutineldng';
 
 const App = () => {
-  const [isLdng, setIsLdng] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const ldngtmr = setTimeout(() => {
-      setIsLdng(false);
+    const loadingTimer = setTimeout(() => {
+      setIsLoading(false);
     }, 6000);
 
-    return () => clearTimeout(ldngtmr);
+    return () => clearTimeout(loadingTimer);
   }, []);
 
   return (
     <NavigationContainer>
       <ContextProvider>
-        {isLdng ? <Fitroutineldng /> : <Fitroutinestck />}
+        {isLoading ? <Fitroutineldng /> : <Fitroutinestck />}
         <Toast position="top" topOffset={55} />
       </ContextProvider>
     </NavigationContainer>

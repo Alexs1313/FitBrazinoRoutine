@@ -12,7 +12,9 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { onboard } from '../Fitroutinecnsts/Fitroutinestls';
+import { onboard } from '../FitRoutineConstants/Fitroutinestls';
+
+const gradientColorsActive = ['#F5C242', '#F29E2D'];
 
 const Fitroutineonbrd = () => {
   const [currSlideNum, setCurrSlideNum] = useState(0);
@@ -86,10 +88,15 @@ The app does not use analytics, advertising, or online services. You can delete 
   }, []);
 
   const checkIsExistsProfile = async () => {
-    const strdPrflDta = await AsyncStorage.getItem('fitroutineSavedProfile');
-
-    if (strdPrflDta) {
-      setIsProfileExists(true);
+    try {
+      const storedProfileData = await AsyncStorage.getItem(
+        'fitroutineSavedProfile',
+      );
+      if (storedProfileData) {
+        setIsProfileExists(true);
+      }
+    } catch (error) {
+      console.error('Error checking if profile exists:', error);
     }
   };
 
@@ -99,6 +106,7 @@ The app does not use analytics, advertising, or online services. You can delete 
     <ImageBackground
       source={require('../../assets/images/backgroundImageOnb.png')}
       style={{ flex: 1 }}
+      blurRadius={1.5}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -215,7 +223,7 @@ The app does not use analytics, advertising, or online services. You can delete 
                 <LinearGradient
                   colors={
                     isPrivacyChecked
-                      ? ['#FFE400', '#FFBA00']
+                      ? gradientColorsActive
                       : ['#7E7E7E', '#7E7E7E']
                   }
                   style={onboard.nextgradientbutton}

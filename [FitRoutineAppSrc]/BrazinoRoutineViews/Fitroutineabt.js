@@ -12,7 +12,9 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { about } from '../Fitroutinecnsts/Fitroutinestls';
+import { about } from '../FitRoutineConstants/Fitroutinestls';
+
+const gradientColorsActive = ['#F5C242', '#F29E2D'];
 
 const Fitroutineabt = () => {
   const navigation = useNavigation();
@@ -21,7 +23,13 @@ const Fitroutineabt = () => {
   const slide = useRef(new Animated.Value(30)).current;
   const scale = useRef(new Animated.Value(0.95)).current;
 
-  const strtAnmtn = () => {
+  useFocusEffect(
+    useCallback(() => {
+      startAnimation();
+    }, []),
+  );
+
+  const startAnimation = () => {
     fade.setValue(0);
     slide.setValue(30);
     scale.setValue(0.95);
@@ -32,11 +40,13 @@ const Fitroutineabt = () => {
         duration: 400,
         useNativeDriver: true,
       }),
+
       Animated.timing(slide, {
         toValue: 0,
         duration: 400,
         useNativeDriver: true,
       }),
+
       Animated.timing(scale, {
         toValue: 1,
         duration: 300,
@@ -46,27 +56,25 @@ const Fitroutineabt = () => {
     ]).start();
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      strtAnmtn();
-    }, []),
-  );
-
-  const hndlShrAbt = () => {
-    Share.share({
-      message: `Fit Brazino Routine is a daily assistant for an easy rhythm of the
-day. Choose one stick — Power, Focus or Relax — and get 5 simple
-tasks that will help you recharge, concentrate or relax. After
-completing, you can add a short thought and a photo to see your
-progress. Every day, Lucas gives new motivation, and a reminder helps you
-not to miss your small step. All data is stored only on your device.`,
-    });
+  const handleShareAbout = async () => {
+    try {
+      await Share.share({
+        message: `Fit Brazino Routine is a daily assistant for an easy rhythm of the day. 
+Choose one stick — Power, Focus, or Relax — and get 5 simple tasks that will help 
+you recharge, concentrate, or relax. After completing, you can add a short thought 
+and a photo to see your progress. Every day, Lucas gives new motivation, and a 
+reminder helps you not to miss your small step. All data is stored only on your device.`,
+      });
+    } catch (error) {
+      console.error('Error sharing about the app:', error);
+    }
   };
 
   return (
     <ImageBackground
       source={require('../../assets/images/backgroundImage.png')}
       style={{ flex: 1 }}
+      blurRadius={1.5}
     >
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
@@ -132,7 +140,7 @@ not to miss your small step. All data is stored only on your device.`,
                 transform: [{ scale: scale }],
               }}
             >
-              <TouchableOpacity onPress={hndlShrAbt}>
+              <TouchableOpacity onPress={handleShareAbout}>
                 <LinearGradient
                   colors={['#D200E5', '#2E0032']}
                   style={about.shareBtn}
@@ -151,7 +159,7 @@ not to miss your small step. All data is stored only on your device.`,
           >
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <LinearGradient
-                colors={['#FFE400', '#FFBA00']}
+                colors={gradientColorsActive}
                 style={about.homeBtn}
               >
                 <Text style={about.homeText}>Home</Text>
